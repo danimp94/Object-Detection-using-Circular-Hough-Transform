@@ -39,80 +39,72 @@ img_dil2 = cv.dilate(
 img_2 = img_dil
 
 
-
-
 # SEPARABILITY FILTER:
-height,width = img_2.shape
+def sep_filter(img, r, r1, r2):
 
-radii = 50
-radius = 30
+    # r: radius of center circle 
+    # r1: inner radius (wi)
+    # r2: outer radius (wo)
 
-acc_array = np.zeros(((height,width,radii)))
+    # Obtain picture shape
+    height,width = img_2.shape
+    print(height,width)
 
-filter3D = np.zeros((30,30,radii))
-filter3D[:,:,:]=1
+    X = double(img)
+    MAP = np.zeros(size(X)) ##????
 
-x0 = 20
-y0 = 20
+    ## Define radius
+    #r2 = 10 # Set of radius for R2:{r2,r2+10,...,ru}
+    #r1 = r2*0.8 # R2 is R1 + 1/4*R1
 
-x = radius
-y=0
-decision = 1-x
+    L = 2 * (r + r2) +1
+    c = r + r2 + 1
+    
+    N1 = 0
+    N2 = 0
+    List1 = np.zeros(L^2,2) ## check
+    List2 = np.zeros(L^2,2) ## check
+    mask = np.zeros(L,L)
 
-edges = np.where(img_2==255)
+    for i in range(1,L):
+        for j in range(1,L):
+            if((r^2) >= ((c-i)^2 + (c-j)^2)) and ((r-r1)^2 <= ((c-i)^2 + (c-j)^2)):
+                mask[i,j] = 0.5
+                N1 = N1 + 1
+                List1[N1,:] = [i,j]
+            elif((r+r2)^2 >= ((c-j)^2 + (c-i)^2)) and ((r^2) <= ((c-j)^2 + (c-i)^2)):
+                mask[i,j] = 1
+                N2 = N2 + 1
+                List2[N2,:] = [i,j]
+    i=0
+    j=0  
 
-for i in range(0,len(edges[0])):
-    x=edges[0][i]
-    y=edges[1][i]
-    for radius in range(20,55):
-        
+    List1 = List1[1:N1,:]
+    List2 = List2[1:N2,:]
+    N = N1 + N2
+    V1 = np.zeros(N1,1)
+    V2 = np.zeros(N2,1)
 
-        while(y<x):  
-            if(x + x0<height and y + y0<width):
-                acc_array[ x + x0,y + y0,radius]+=1; # Octant 1
-            if(y + x0<height and x + y0<width):
-                acc_array[ y + x0,x + y0,radius]+=1; # Octant 2
-            if(-x + x0<height and y + y0<width):
-                acc_array[-x + x0,y + y0,radius]+=1; # Octant 4
-            if(-y + x0<height and x + y0<width):
-                acc_array[-y + x0,x + y0,radius]+=1; # Octant 3
-            if(-x + x0<height and -y + y0<width):
-                acc_array[-x + x0,-y + y0,radius]+=1; # Octant 5
-            if(-y + x0<height and -x + y0<width):
-                acc_array[-y + x0,-x + y0,radius]+=1; # Octant 6
-            if(x + x0<height and -y + y0<width):
-                acc_array[ x + x0,-y + y0,radius]+=1; # Octant 8
-            if(y + x0<height and -x + y0<width):
-                acc_array[ y + x0,-x + y0,radius]+=1; # Octant 7
-            y+=1
-            if(decision<=0):
-                decision += 2 * y + 1
-            else:
-                x=x-1;
-                decision += 2 * (y - x) + 1
+    for i in range(1,height-L+1):
+       for j in range(1,widht-L+1):
+          for l in range(1,size(List1[1])): ##CHECK
+             V1[l] = X(List1(l, 1) + i - 1, List1(l, 2) + j - 1)
+          for l in range(1,size(List2[1])): ##CHECK
+             V2[l] = X(List2(l, 1) + i - 1, List2(l, 2) + j - 1)
+          M = np.mean([V1,V2])
+          St = np.cov([V1,V2],1)
+          if (St == 0):
+             MAP[i + c - 1, j + c - 1] = 0
+          else:
+             M1 = np.mean(V1)
+             M2 = np.mean(V2)
+             Sb = ((N1*((M1-M)^2)) + (N2*((M2-M)^2)))/N
+             MAP[i + c - 1, j + c - 1] = Sb/St
 
-i=0
-j=0            
 
-while(i<height-30):
-    while(j<width-30):
-        filter3D=acc_array[i:i+30,j:j+30,:]*filter3D
-        max_pt = np.where(filter3D==filter3D.max())
-        a = max_pt[0].astype(int)       
-        b = max_pt[1].astype(int)
-        c = max_pt[2].astype(int)
+sep_filter(img,9,8,10)
+print(MAP)
 
-        b=b+j
-        a=a+i
-        if(filter3D.max()>90):
-            #cv.circle(output,(b,a),c,(0,255,0),cv.FILLED)
-            cv.circle(output,(b,a),5,(0,255,0),2)
-        j=j+30
-        filter3D[:,:,:]=1
-    j=0
-    i=i+30
-
-cv.imshow('Detected circle',output)
 
 ## CHT
 #def circle_hough_transform():
