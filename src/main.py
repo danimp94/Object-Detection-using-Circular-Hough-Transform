@@ -1,44 +1,50 @@
-import numpy as np
-
-
-# Input Image
-# Enhancing Process
-# Portable Gray Map
-# Enhancing Image:
-# Histogram Equalization 
-# Canny edge detection
-# Closing and Opening Morphology
-
-import cv2
+import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 
-def hog_trans(img_egded, rho=180, theta=180):
+# Input Image
+filename = ("data\coconut_1.jpg")
+img = cv.imread(filename)
+
+# Enhancing Process
+
+    # Portable Gray Map
+img_grey = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+
+    # Enhancing Image:
+    # Histogram Equalization 
+img_hist = cv.equalizeHist(img_grey)
+    # Canny edge detection
+img_edge = cv.Canny(img_hist,200,600) #Default parameters:(100,200)
+    # Closing and Opening Morphology
+img_dil = cv.dilate(
+    img_edge,
+    cv.getStructuringElement(cv.MORPH_RECT, (2, 2)),
+    iterations=1
+)
+
+img_ero = cv.erode(
+    img_dil,
+    cv.getStructuringElement(cv.MORPH_RECT, (2, 2)),
+    iterations=1
+)
+
+
+## Separability Filter
+#def separability_filter():
     
+## CHT
+#def circle_hough_transform():
     
-    return 
 
-if __name__ == "__main__":
+#input_image(filename)
+#preprocessing_image(img,0)
 
-    img1 = cv2.imread("aau-city-1.jpg")
-    img_grey1 = cv2.cvtColor(img1,cv2.COLOR_BGR2GRAY)
-    img_hist1 = cv2.equalizeHist(img_grey1)
-    img_gau1 = cv2.GaussianBlur(img_hist1,(3,3),1)
-    img_edge1 = cv2.Canny(img_gau1,100,200)
-
-    img_di1 = cv2.dilate(
-        img_edge1,
-        cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5)),
-        iterations=1
-    )
-
-    img_ero1 = cv2.erode(
-        img_di1,
-        cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5)),
-        iterations=1
-    )
-
-
-    cv2.imshow("img_grey1",img_ero1)
-    cv2.waitKey(0)
+cv.imshow('img',img)
+cv.imshow('img_grey',img_grey)
+cv.imshow('img_histogram_equalization',img_hist)
+cv.imshow('img_canny_edge',img_edge)
+cv.imshow('img_dilate',img_dil)
+cv.imshow('img_erode',img_ero)
+cv.waitKey(0)
