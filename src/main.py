@@ -42,32 +42,31 @@ if __name__ == "__main__":
     AFromPaper = 0
     WeirdNcontainer = []
     
-    for y in range(height,20):
-        for x in range(width,20):
+    for y in range(0,height,20):
+        for x in range(0,width,20):
             if dst.item(y,x) == 255:
                 for r in range(Rmin,Rmax,1):
                     
                     pixisR1,intenR1 = pixiExt(dst,x,y,r)
                     pixisR2,intenR2 = pixiExt(dst,x,y,Rmax)
-                    #print("p1",pixisR1)
-                    #print("p2",pixisR2)
-                    #print("i1",intenR1)
-                    #print("i2",intenR2)
+                    print("p1",pixisR1)
+                    print("p2",pixisR2)
+                    print("i1",intenR1)
+                    print("i2",intenR2)
                     
                     unionInten = intenR2-intenR1
                     unionPixis = pixisR2-pixisR1
                     unionAvgInten = unionInten/unionPixis
-                    #print("union inten",unionInten)
-                    #print("union pix",unionPixis)
-                    #print("union avg int",unionAvgInten)
+                    print("union inten",unionInten)
+                    print("union pix",unionPixis)
+                    print("union avg int",unionAvgInten)
                     #time.sleep(5)
                     
                     AFromPaper = (unionInten-unionAvgInten)**2
                     BFromPaper = pixisR1*((intenR1/pixisR1)-unionAvgInten)+pixisR2*((intenR2/pixisR2)-unionAvgInten)
                     WeirdN = BFromPaper/AFromPaper
                     WeirdNcontainer.append(WeirdN)
-                    #WeirdNcontainer[(WeirdN)]
                     
-                    #print("A", AFromPaper)
-                    #print("B", BFromPaper)
-                    #print("n",WeirdN)
+                    print("A", AFromPaper)
+                    print("B", BFromPaper)
+                    print("n",WeirdN)
