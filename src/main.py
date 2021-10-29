@@ -56,7 +56,7 @@ def paraCal(pR1,pR2,inR1,inR2,inValR1,inValR2,uPi,uIn,uPiVal):
 if __name__ == "__main__":
     
     #img1
-    filename = "pipes.jpg"
+    filename = "data\coconut_3.jpg"
     img1 = cv.imread(filename)
     gray = cv.cvtColor(img1,cv.COLOR_BGR2GRAY)
     dst = cv.Canny(gray,80,200)
@@ -64,19 +64,19 @@ if __name__ == "__main__":
     height,width = dst.shape
     coppyimg = dst.copy()
     Rmin = 10
-    Rmax = 100
+    Rmax = 50
     regionRatioContainer = []
     
     #print(pixiExt(dst,250,250,50))
     #time.sleep(10)
     
-    for y, x, r in itertools.product(range(0,height,30), range(0,width,30),range(Rmin,Rmax-1,50)):
+    for y, x, r in itertools.product(range(0,height,10), range(0,width,10),range(Rmin,Rmax-1,15)):
         if dst.item(y,x) == 255 and x-Rmax>0 and x+Rmax<width and y-Rmax>0 and y+Rmax<height:
             pixisR1,intenR1,pixInValR1,uPi,uIn,uInVal= pixiExt(dst,x,y,r)
             pixisR2,intenR2,pixInValR2,uPi,uIn,uInVal  = pixiExt(dst,x,y,r*1.25)
             regionRatio = paraCal(pixisR1,pixisR2,intenR1,intenR2,pixInValR1,pixInValR2,uPi,uIn,uInVal)
             
-            """ height0,width0 = dst.shape
+            height0,width0 = dst.shape
             y3, x3 = np.ogrid[:height0, :width0]
             
             dist_from_center = np.sqrt((x3 - x)**2 + (y3-y)**2)
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
             coppyimg[mask2] = 255
             cv.imshow("elCircle", coppyimg)
-            cv.waitKey(0) """
+            cv.waitKey(1)
             regionRatioContainer.append(regionRatio)
             print("\r",regionRatio)
             
