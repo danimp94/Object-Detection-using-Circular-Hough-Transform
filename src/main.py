@@ -4,9 +4,12 @@ import sys
 import time
 import numpy as np
 import  itertools
+from numpy.core.records import array
 np.set_printoptions(threshold=sys.maxsize)
 
 def pixiExt(img,centx0,centy0,radius):
+    pixsLoca = []
+    coppyimg = img.copy()
     pixsTotal = 0
     totalInten = 0
     
@@ -18,55 +21,76 @@ def pixiExt(img,centx0,centy0,radius):
     mask = dist_from_center <= radius
     #file1.write(str(intenReg))
     #file1.close()
+    #coppyimg[mask] = [0]
+    #cv.imshow("elCircle", coppyimg)
+    #cv.waitKey(0)
     
     height1,width1 = mask.shape
-    for i in range(height1):
-        for j in range(width1):
-            if mask[i,j].any() == True:
-                totalInten += img[i,j].item()
-                pixsTotal += 1
-    return pixsTotal,totalInten
+    for y, x in itertools.product(range(0,height1), range(0,width1)):
+        if mask[y,x].any() == True and x>0 and x<width and y>0 and y<height:
+            totalInten += img[y,x].item()
+            pixsTotal += 1
+            pixsLoca.append((img[y,x].item()))
+            
+    return pixsTotal,totalInten,pixsLoca
+
+def paraCal(pR1,pR2,inR1,inR2,inValR1,inValR2):
+    AregR1 = 0
+    AregR2 = 0
+    Areg = 0
+    uIn = inR2-inR1 #union intensity
+    uPi = pR2-pR1   #pixels in union
+    
+    if uIn and uPi != 0:
+        uAvgIn = uIn/uPi #avage intensity of union
+        for i in range(len(inValR1)):
+            AregR1 += ((inValR1[i]-uAvgIn))**2 #The avage intensity of region R1
+            #print(len(inValR1))
+            
+        for i in range(len(inValR2)):
+            AregR2 += ((inValR2[i]-uAvgIn))**2 #The avage intensity of region R2
+            #print(len(inValR2))
+            
+        Areg = AregR1 + AregR2
+        Breg = (pR1*(((inR1/pR1)-uAvgIn)**2))+(pR2*(((inR2/pR2)-uAvgIn)**2))
+        if Areg and Breg !=0:
+            regRatio = Breg/Areg
+            
+            return regRatio    
 
 if __name__ == "__main__":
     
     #img1
-    filename = "aau-city-1.jpg"
+    filename = "pipes.jpg"
     img1 = cv.imread(filename)
     gray = cv.cvtColor(img1,cv.COLOR_BGR2GRAY)
     dst = cv.Canny(gray,80,200)
     
     height,width = dst.shape
-    x,y = np.ogrid[:height,:width]
-    Rmin = 30
-    Rmax = 60
-    AFromPaper = 0
-    WeirdNcontainer = []
+    coppyimg = dst.copy()
+    Rmin = 10
+    Rmax = 100
+    regionRatioContainer = []
     
-    for y in range(0,height,20):
-        for x in range(0,width,20):
-            if dst.item(y,x) == 255:
-                for r in range(Rmin,Rmax,1):
-                    
-                    pixisR1,intenR1 = pixiExt(dst,x,y,r)
-                    pixisR2,intenR2 = pixiExt(dst,x,y,Rmax)
-                    print("p1",pixisR1)
-                    print("p2",pixisR2)
-                    print("i1",intenR1)
-                    print("i2",intenR2)
-                    
-                    unionInten = intenR2-intenR1
-                    unionPixis = pixisR2-pixisR1
-                    unionAvgInten = unionInten/unionPixis
-                    print("union inten",unionInten)
-                    print("union pix",unionPixis)
-                    print("union avg int",unionAvgInten)
-                    #time.sleep(5)
-                    
-                    AFromPaper = (unionInten-unionAvgInten)**2
-                    BFromPaper = pixisR1*((intenR1/pixisR1)-unionAvgInten)+pixisR2*((intenR2/pixisR2)-unionAvgInten)
-                    WeirdN = BFromPaper/AFromPaper
-                    WeirdNcontainer.append(WeirdN)
-                    
-                    print("A", AFromPaper)
-                    print("B", BFromPaper)
-                    print("n",WeirdN)
+    #print(pixiExt(dst,250,250,50))
+    #time.sleep(10)
+    
+    for y, x, r in itertools.product(range(0,height,50), range(0,width,50),range(Rmin,Rmax,20)):
+        if dst.item(y,x) == 255 and x-Rmax>0 and x+Rmax<width and y-Rmax>0 and y+Rmax<height:
+            pixisR1,intenR1,pixInValR1 = pixiExt(dst,x,y,r)
+            pixisR2,intenR2,pixInValR2  = pixiExt(dst,x,y,r*1.25)
+            regionRatio = paraCal(pixisR1,pixisR2,intenR1,intenR2,pixInValR1,pixInValR2)
+            
+            height0,width0 = dst.shape
+            y3, x3 = np.ogrid[:height0, :width0]
+            
+            dist_from_center = np.sqrt((x3 - x)**2 + (y3-y)**2)
+            mask0 = dist_from_center <= r
+            coppyimg[mask0] = 255
+            cv.imshow("elCircle", coppyimg)
+            cv.waitKey(0)
+            regionRatioContainer.append(regionRatio)
+            print("\r",regionRatio)
+            
+        sys.stdout.write("\r" + str(int(float(y+1)/float(height)*100))+"%")
+        sys.stdout.flush()
