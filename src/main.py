@@ -70,7 +70,7 @@ if __name__ == "__main__":
     #print(pixiExt(dst,250,250,50))
     #time.sleep(10)
     
-    for y, x, r in itertools.product(range(0,height,10), range(0,width,10),range(Rmin,Rmax-1,15)):
+    for y, x, r in itertools.product(range(0,height,10), range(0,width,10),range(Rmin,Rmax-1,20)):
         if dst.item(y,x) == 255 and x-Rmax>0 and x+Rmax<width and y-Rmax>0 and y+Rmax<height:
             pixisR1,intenR1,pixInValR1,uPi,uIn,uInVal= pixiExt(dst,x,y,r)
             pixisR2,intenR2,pixInValR2,uPi,uIn,uInVal  = pixiExt(dst,x,y,r*1.25)
