@@ -55,34 +55,21 @@ def paraCal(pR1,pR2,inR1,inR2,inValR1,inValR2,uPi,uIn,uPiVal):
 if __name__ == "__main__":
     
     #img1
-<<<<<<< HEAD
     filename = "coconut_3.jpg"
-=======
-    filename = "data\coconut_3.jpg"
->>>>>>> e252fe74fc02577263d2cd7f06a0713d5ea7d880
     img1 = cv.imread(filename)
     gray = cv.cvtColor(img1,cv.COLOR_BGR2GRAY)
     dst = cv.Canny(gray,80,200)
     
     height,width = dst.shape
     Rmin = 10
-<<<<<<< HEAD
     Rmax = 30
-=======
-    Rmax = 50
->>>>>>> e252fe74fc02577263d2cd7f06a0713d5ea7d880
     regionRatioContainer = []
     
     #print(pixiExt(dst,250,250,50))
     #time.sleep(10)
     
-<<<<<<< HEAD
     for y, x, r in itertools.product(range(0,height,20), range(0,width,20),range(Rmin,Rmax,2)):
         if x-Rmax>=0 and x+Rmax<=width and y-Rmax>=0 and y+Rmax<=height:
-=======
-    for y, x, r in itertools.product(range(0,height,10), range(0,width,10),range(Rmin,Rmax-1,20)):
-        if dst.item(y,x) == 255 and x-Rmax>0 and x+Rmax<width and y-Rmax>0 and y+Rmax<height:
->>>>>>> e252fe74fc02577263d2cd7f06a0713d5ea7d880
             pixisR1,intenR1,pixInValR1,uPi,uIn,uInVal= pixiExt(dst,x,y,r)
             pixisR2,intenR2,pixInValR2,uPi,uIn,uInVal  = pixiExt(dst,x,y,r*1.25)
             regionRatio = paraCal(pixisR1,pixisR2,intenR1,intenR2,pixInValR1,pixInValR2,uPi,uIn,uInVal)
@@ -97,11 +84,7 @@ if __name__ == "__main__":
             coppyimg = dst.copy()
             coppyimg[mask2] = 255
             cv.imshow("elCircle", coppyimg)
-<<<<<<< HEAD
             cv.waitKey(0)
-=======
-            cv.waitKey(1)
->>>>>>> e252fe74fc02577263d2cd7f06a0713d5ea7d880
             regionRatioContainer.append(regionRatio)
             print("\r",regionRatio)
             
