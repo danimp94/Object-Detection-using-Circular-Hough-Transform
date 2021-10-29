@@ -7,7 +7,7 @@ import  itertools
 from numpy.core.records import array
 np.set_printoptions(threshold=sys.maxsize)
 
-def pixiExt(img,centx0,centy0,radius):
+def pixiExt(img,x0,y0,radius):
     pixsLoca = []
     pixsTotal = 0
     totalInten = 0
@@ -15,22 +15,21 @@ def pixiExt(img,centx0,centy0,radius):
     unionInte = 0
     uPixVal = []
     
-    #file1 = open("pixels.txt","w")
     height0,width0 = img.shape
     y, x = np.ogrid[:height0, :width0]
     
-    dist_from_center = np.sqrt((x - centx0)**2 + (y-centy0)**2)
-    mask0 = dist_from_center <= r
-    mask1 = dist_from_center <= r*1.25
+    dist_from_center = np.sqrt((x0-x)**2 + (y0-y)**2)
+    mask0 = dist_from_center <= radius
+    mask1 = dist_from_center <= radius*1.25
     mask2 = mask1 & ~mask0
     
     height1,width1 = mask0.shape
     for y, x in itertools.product(range(0,height1), range(0,width1)):
-        if mask0[y,x].any() == True and x>0 and x<width and y>0 and y<height:
+        if mask0[y,x].any() == True and x>=0 and x<=width and y>=0 and y<=height:
             totalInten += img[y,x].item()
             pixsTotal += 1
             pixsLoca.append((img[y,x].item()))
-        if mask2[y,x].any() == True and x>0 and x<width and y>0 and y<height:
+        if mask2[y,x].any() == True and x>=0 and x<=width and y>=0 and y<=height:
                 unionPix += 1
                 unionInte += img[y,x].item()
                 uPixVal.append((img[y,x].item()))
@@ -56,37 +55,36 @@ def paraCal(pR1,pR2,inR1,inR2,inValR1,inValR2,uPi,uIn,uPiVal):
 if __name__ == "__main__":
     
     #img1
-    filename = "pipes.jpg"
+    filename = "coconut_3.jpg"
     img1 = cv.imread(filename)
     gray = cv.cvtColor(img1,cv.COLOR_BGR2GRAY)
     dst = cv.Canny(gray,80,200)
     
     height,width = dst.shape
-    coppyimg = dst.copy()
     Rmin = 10
-    Rmax = 100
+    Rmax = 30
     regionRatioContainer = []
     
     #print(pixiExt(dst,250,250,50))
     #time.sleep(10)
     
-    for y, x, r in itertools.product(range(0,height,30), range(0,width,30),range(Rmin,Rmax-1,50)):
-        if dst.item(y,x) == 255 and x-Rmax>0 and x+Rmax<width and y-Rmax>0 and y+Rmax<height:
+    for y, x, r in itertools.product(range(0,height,20), range(0,width,20),range(Rmin,Rmax,2)):
+        if x-Rmax>=0 and x+Rmax<=width and y-Rmax>=0 and y+Rmax<=height:
             pixisR1,intenR1,pixInValR1,uPi,uIn,uInVal= pixiExt(dst,x,y,r)
             pixisR2,intenR2,pixInValR2,uPi,uIn,uInVal  = pixiExt(dst,x,y,r*1.25)
             regionRatio = paraCal(pixisR1,pixisR2,intenR1,intenR2,pixInValR1,pixInValR2,uPi,uIn,uInVal)
             
-            """ height0,width0 = dst.shape
+            height0,width0 = dst.shape
             y3, x3 = np.ogrid[:height0, :width0]
             
-            dist_from_center = np.sqrt((x3 - x)**2 + (y3-y)**2)
+            dist_from_center = np.sqrt((x - x3)**2 + (y-y3)**2)
             mask0 = dist_from_center <= r
             mask1 = dist_from_center <= r*1.25
             mask2 = mask1 & ~mask0
-
+            coppyimg = dst.copy()
             coppyimg[mask2] = 255
             cv.imshow("elCircle", coppyimg)
-            cv.waitKey(0) """
+            cv.waitKey(0)
             regionRatioContainer.append(regionRatio)
             print("\r",regionRatio)
             
