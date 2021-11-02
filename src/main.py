@@ -106,14 +106,23 @@ def circles(array,Rmax):
             if sortArr[ij][0][0][2] > sortArr[ji][0][0][2]:
                 #print("this will removed ij>",sortArr[ji])
                 sortArr.remove(sortArr[ji])
+                if ij >= int(len(sortArr)):
+                    circleOnTop = False
+                    break
                 
             if sortArr[ji][0][0][2] > sortArr[ij][0][0][2]:
                 #print("this will removed ji>",sortArr[ij])
                 sortArr.remove(sortArr[ij])
+                if ij >= int(len(sortArr)):
+                    circleOnTop = False
+                    break
                 
             if sortArr[ij][0][0][2] == sortArr[ji][0][0][2]:
                 #print("this gets removed ==",sortArr[ji])
                 sortArr.remove(sortArr[ji])
+                if ij >= int(len(sortArr)):
+                    circleOnTop = False
+                    break
         ji += 1
         #print("ji and ij",ji,ij,len(sortArr))
         if ji == int(len(sortArr)):
@@ -200,7 +209,7 @@ if __name__ == "__main__":
     highChanObj = []
     finale0 = []
     
-    for y, x, r in itertools.product(range(0,height,10), range(0,width,10),range(Rmin,Rmax,5)):
+    for y, x, r in itertools.product(range(0,height,2), range(0,width,2),range(Rmin,Rmax,5)):
         if x-Rmin>=0 and x+Rmin<=width and y-Rmin>=0 and y+Rmin<=height:
             pixisR1,intenR1,pixInValR1,uPi,uIn  = pixiExt(dst,x,y,r)
             pixisR2,intenR2,pixInValR2,uPi,uIn  = pixiExt(dst,x,y,r*1.25)
