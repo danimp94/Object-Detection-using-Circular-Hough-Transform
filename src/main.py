@@ -2,7 +2,6 @@ import operator
 import cv2 as cv
 import numpy as np
 import sys
-import time
 import numpy as np
 import  itertools
 
@@ -10,36 +9,21 @@ def drawCicle(img,finale):
     x = 0
     y = 0
     x = 0
-
     for i in range(len(finale)):
         x = finale[i][0]
         y = finale[i][1]
         r = finale[i][2]
-
         img1 = cv.circle(img,(x,y),r,255,5)
-
     return cv.imshow("Circles found",img1)
- 
-    
-def output_circles(image,x0,y0,r,color,thickness):
-    for t in range(0,360):
-        x=int(x0+r*(np.cos(np.radians(t))))
-        y=int(y0+r*(np.sin(np.radians(t))))
-        for d in range(thickness):
-            image.itemset((y,x,0),color[0])
-            image.itemset((y,x,1),color[1])
-            image.itemset((y,x,2),color[2])
-    return cv.imshow("Circled Image",image)
 
 def houghTra(img,sepX,sepY,sepR):
-
     accumulator = {}
     imgnewp = img.copy()
     # Looping over the values of theta, Considering only even values for for minimizing performance time by setting increment as 2
     for t in range(0,360,2):
         # Determining all the possible centres x0,y0 using the above formula
-        x0 = int(sepX-(sepR*np.cos(np.radians(t))))
-        y0 = int(sepY-(sepR*np.sin(np.radians(t))))
+        x0 = int(sepX+(sepR*np.cos(np.radians(t))))
+        y0 = int(sepY+(sepR*np.sin(np.radians(t))))
         # Checking if the center is within the range of image
         
         #imgnewnp = cv.circle(imgnewp,(x0,y0),sepR,255,5)
@@ -52,11 +36,9 @@ def houghTra(img,sepX,sepY,sepR):
             else:
                 accumulator[(x0,y0,sepR)]=0
     entire_sorted_accumulator = sorted(accumulator.items(),key=operator.itemgetter(1),reverse=True)
-
     return  entire_sorted_accumulator[0]
 
 def pixiExt(img,x0,y0,radius):
-
     pixsLoca = []
     pixsTotal = 0
     totalInten = 0
@@ -85,7 +67,6 @@ def pixiExt(img,x0,y0,radius):
     return pixsTotal,totalInten,pixsLoca,unionPix,unionInte
 
 def paraCal(pR1,pR2,inR1,inR2,inValR1,inValR2,uPi,uIn):
-
     Areg = 0
     uIn = uIn   #union intensity
     uPi = uPi  #pixels in union
@@ -107,64 +88,102 @@ def paraCal(pR1,pR2,inR1,inR2,inValR1,inValR2,uPi,uIn):
             return regRatio    
 
 def circles(array,Rmax):
-
-    sortArr = sorted(array, key=operator.itemgetter(0,0,0,0))     
-    preX = 0
-    preY = 0
-    currX = 0
-    currY = 0
-    r1 = 0
-    r2 = 0
-    finaleCircle = []
-    goody = False
-    distGood = False
-    addonces = False
-    #storeCircler = []
-    onlyOnce = True
-    storeO = False
-
-    for i in range(len(sortArr)):
-        onlyOnce = True
-        for j in range(len(sortArr)):
-            preX = int(sortArr[i][0][0][0])
-            preY = int(sortArr[i][0][0][1])
-            currX = int(sortArr[j][0][0][0])
-            currY = int(sortArr[j][0][0][1])
-            r1 = int(sortArr[i][0][0][2])
-            r2 = int(sortArr[j][0][0][2])
-
-            if i == j:
+    sortArr = sorted(array, key=operator.itemgetter(0,0,0,0))
+    circleOnTop = True
+    ij = 0
+    ji = 0
+    circleInRang = True
+    ii = 0
+    jj = 0
+    finCic = []
+    jCicle = []
+    #print("OG list",sortArr)
+    
+    while circleOnTop:
+        #print("ji and ij",ji,ij,len(sortArr))
+        if sortArr[ij][0][0][0] - sortArr[ji][0][0][0] == 0 and ij != ji:
+            #print("it do go down")
+            if sortArr[ij][0][0][2] > sortArr[ji][0][0][2]:
+                #print("this will removed ij>",sortArr[ji])
+                sortArr.remove(sortArr[ji])
+                
+            if sortArr[ji][0][0][2] > sortArr[ij][0][0][2]:
+                #print("this will removed ji>",sortArr[ij])
+                sortArr.remove(sortArr[ij])
+                
+            if sortArr[ij][0][0][2] == sortArr[ji][0][0][2]:
+                #print("this gets removed ==",sortArr[ji])
+                sortArr.remove(sortArr[ji])
+        ji += 1
+        #print("ji and ij",ji,ij,len(sortArr))
+        if ji == int(len(sortArr)):
+            ij += 1
+            ji = 0
+            
+        if ij >= int(len(sortArr)):
+            circleOnTop = False
+            break
+            
+    #print("\r on top circles gone", sortArr)
+    while circleInRang:
+        #print("ii,jj,len()",ii,jj,len(sortArr))
+        #print("ii,jj",ii,jj,len(sortArr))
+        dist = np.linalg.norm(np.array((int(sortArr[ii][0][0][0]),int(sortArr[ii][0][0][1])))-np.array((int(sortArr[jj][0][0][0]),int(sortArr[jj][0][0][1]))))
+        #if ((sortArr[ii][0][0][0] - sortArr[jj][0][0][0] <= 10) or (sortArr[ii][0][0][0] - sortArr[jj][0][0][0] >= -10)) and ii != jj:
+        if dist <= Rmax*2 and ii != jj:
+            jCicle.append(sortArr[jj])
+            #print("jcicle",jCicle,ii,jj,dist)
+            sortArr.remove(sortArr[jj])
+            jj = jj-2
+            
+            if ii >= int(len(sortArr)):
+                #print("are you here dwag?")
+                circleInRang = False
                 break
-            print("dis dist sucks dist", np.linalg.norm(np.array((preX,preY))-np.array((currX,currY))))
-            if np.linalg.norm(np.array((preX,preY))-np.array((currX,currY))) >= 40:
-                goody = True
-                distGood = True
+            
+        jj += 1
+        #print("jj",jj)
+        if jj >= int(len(sortArr)):
+            avgX = 0
+            avgY = 0
+            maxR = 0
+            rdiMax = 0
+            
+            if len(jCicle) != 0:
+                for i in range(len(jCicle)):
+                    #print("range af circle",len(jCicle))
+                    avgX += int(jCicle[i][0][0][0])
+                    avgY += int(jCicle[i][0][0][1])
+                    maxR = int(jCicle[i][0][0][2])
+                    
+                    if maxR >= rdiMax:
+                        rdiMax = maxR
+                    
+                #print("all of", avgX,avgY,maxR,jCicle)
+                avgX = int(avgX/len(jCicle))
+                avgY = int(avgY/len(jCicle))
+                #maxR = int(maxR/len(jCicle))
+                finCic.append([avgX,avgY,rdiMax])
+                #print("avg loop fincic",finCic)
+                jCicle = []
             else:
-                distGood = False
-            if r1 == r2 and onlyOnce and np.linalg.norm(np.array((preX,preY))-np.array((currX,currY))) >= 40:
-                print("store circlereaekfpoaef")
-                #storeCircler.append([sortArr[i][0][0][0],sortArr[i][0][0][1],sortArr[i][0][0][2]])
-                onlyOnce = False
-                goody = True
-                storeO = True
+                avgX = int(sortArr[ii][0][0][0])
+                avgY = int(sortArr[ii][0][0][1])
+                maxR = int(sortArr[ii][0][0][2])
+                finCic.append([avgX,avgY,maxR])
+                #print("add if not within dist",finCic,dist)
+            ii += 1
+            jj = 0
+            #print("in reset ii and jj",ii,jj,len(sortArr))
+            if ii >= int(len(sortArr)):
+                #print("are you here dwag?")
+                circleInRang = False
                 break
-            if r1 == r2:
-                goody = False
-                break
-            if r1 < r2 and not distGood:
-                print("tessttss")
-                goody = False                    
-                break
-            else:
-                print("goody is good")
-                print("r1 og r2", r1,r2)
-                goody = True
-        if goody:
-            print("pending your mom")
-            finaleCircle.append([sortArr[i][0][0][0],sortArr[i][0][0][1],sortArr[i][0][0][2]])
-
-    print(finaleCircle)
-    return finaleCircle
+            
+        
+    #print("it do be done",sortArr)
+    #print("fincic",finCic)
+    return finCic
 
 if __name__ == "__main__":
     
@@ -176,8 +195,8 @@ if __name__ == "__main__":
     dst = cv.Canny(imgCopy3,80,300)
     
     height,width = dst.shape
-    Rmin = 11
-    Rmax = 37
+    Rmin = 23
+    Rmax = 41
     highChanObj = []
     finale0 = []
     
@@ -201,19 +220,16 @@ if __name__ == "__main__":
             cv.waitKey(1)
             
             if regionRatio != None and regionRatio > 0.10:
-
                 houghTra(dst,x,y,r)
                 highChanObj.append([houghTra(dst,x,y,r)])
                 #print("\r B/A",regionRatio)
-              
                 imgnew = dst.copy()
                 imgnewn = cv.circle(imgnew,(x,y),r,255,5)
                 cv.imshow("optimal circle", imgnewn)
                 cv.waitKey(1)
             
-        sys.stdout.write("\r" + str(int(float(y+1)/float(height)*100))+"%")
+        sys.stdout.write("\r" + str(int(float(y+1)/float(height)*100))+"% picture scaned")
         sys.stdout.flush()
-
     finale0 = circles(highChanObj,Rmax)
     drawCicle(dst,finale0)
     cv.waitKey(0)
