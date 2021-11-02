@@ -125,7 +125,7 @@ def circles(array,Rmax):
                     break
         ji += 1
         #print("ji and ij",ji,ij,len(sortArr))
-        if ji == int(len(sortArr)):
+        if ji >= int(len(sortArr)):
             ij += 1
             ji = 0
             
@@ -197,7 +197,7 @@ def circles(array,Rmax):
 if __name__ == "__main__":
     
     #img1
-    filename = "data\coconut_1.jpg"
+    filename = "pipes3.jpg"
     img1 = cv.imread(filename)
     imgCopy3 = img1.copy()
     gray = cv.cvtColor(imgCopy3,cv.COLOR_BGR2GRAY)
