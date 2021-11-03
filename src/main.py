@@ -203,7 +203,7 @@ if __name__ == "__main__":
         # Enhancing Process
     # PREPROCESSING:
     #img1 
-    filename = "data\cropped_pictures\coconut_1_cropped.jpg"
+    filename = "data\cropped_pictures\coconut_2_cropped.jpg"
     img1 = cv.imread(filename)
     imgcopy = img1.copy()
 
@@ -214,25 +214,20 @@ if __name__ == "__main__":
     img_hist = cv.equalizeHist(img_grey) # Histogram Equalization 
 
     # Canny edge detection
-    img_edge = cv.Canny(img_hist,80,300) #Default parameters:(100,200)
+    img_edge = cv.Canny(img_hist,85,650) #Default parameters:(100,200)
 
     # Closing and Opening Morphology
     img_dil = cv.dilate(
         img_edge,
-        cv.getStructuringElement(cv.MORPH_RECT, (3, 3)),
+        cv.getStructuringElement(cv.MORPH_RECT, (2, 2)),
         iterations=1
     )
     img_ero = cv.erode(
         img_dil,
-        cv.getStructuringElement(cv.MORPH_RECT, (3, 3)),
-        iterations=1
-    )
-    img_dil2 = cv.dilate(
-        img_ero,
         cv.getStructuringElement(cv.MORPH_RECT, (2, 2)),
         iterations=1
     )
-    dst = img_dil2
+    dst = img_ero
 
 
     height,width = dst.shape
