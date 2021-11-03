@@ -14,6 +14,9 @@ def drawCicle(img,finale):
         y = finale[i][1]
         r = finale[i][2]
         img1 = cv.circle(img,(x,y),r,255,5)
+        
+    status = cv.imwrite('/home/rz/Documents/uniwork/Vision/MiniPro/Res/img.png',img1)
+    print(status)
     return cv.imshow("Circles found",img1)
 
 def houghTra(img,sepX,sepY,sepR):
@@ -97,9 +100,10 @@ def circles(array,Rmax):
     jj = 0
     finCic = []
     jCicle = []
+    solodolo = []
     #print("OG list",sortArr)
     
-    while circleOnTop:
+    """ while circleOnTop:
         #print("ji and ij",ji,ij,len(sortArr))
         if sortArr[ij][0][0][0] - sortArr[ji][0][0][0] == 0 and ij != ji:
             #print("it do go down")
@@ -131,7 +135,7 @@ def circles(array,Rmax):
             
         if ij >= int(len(sortArr)):
             circleOnTop = False
-            break
+            break """
             
     #print("\r on top circles gone", sortArr)
     while circleInRang:
@@ -139,7 +143,7 @@ def circles(array,Rmax):
         #print("ii,jj",ii,jj,len(sortArr))
         dist = np.linalg.norm(np.array((int(sortArr[ii][0][0][0]),int(sortArr[ii][0][0][1])))-np.array((int(sortArr[jj][0][0][0]),int(sortArr[jj][0][0][1]))))
         #if ((sortArr[ii][0][0][0] - sortArr[jj][0][0][0] <= 10) or (sortArr[ii][0][0][0] - sortArr[jj][0][0][0] >= -10)) and ii != jj:
-        if dist <= Rmax*2 and ii != jj:
+        if dist <= Rmax*1.7 and ii != jj:
             jCicle.append(sortArr[jj])
             #print("jcicle",jCicle,ii,jj,dist)
             sortArr.remove(sortArr[jj])
@@ -179,7 +183,7 @@ def circles(array,Rmax):
                 avgX = int(sortArr[ii][0][0][0])
                 avgY = int(sortArr[ii][0][0][1])
                 maxR = int(sortArr[ii][0][0][2])
-                finCic.append([avgX,avgY,maxR])
+                solodolo.append([avgX,avgY,maxR])
                 #print("add if not within dist",finCic,dist)
             ii += 1
             jj = 0
@@ -197,25 +201,26 @@ def circles(array,Rmax):
 if __name__ == "__main__":
     
     #img1
-    filename = "pipes3.jpg"
+    filename = "pipes4.jpg"
     img1 = cv.imread(filename)
     imgCopy3 = img1.copy()
     gray = cv.cvtColor(imgCopy3,cv.COLOR_BGR2GRAY)
     dst = cv.Canny(imgCopy3,80,300)
     
     height,width = dst.shape
-    Rmin = 23
-    Rmax = 41
+    Rmin = 17
+    Rmax = 37
     highChanObj = []
     finale0 = []
+    itDoBeDone = []
     
-    for y, x, r in itertools.product(range(0,height,2), range(0,width,2),range(Rmin,Rmax,5)):
+    for y, x, r in itertools.product(range(0,height,10), range(0,width,10),range(Rmin,Rmax,5)):
         if x-Rmin>=0 and x+Rmin<=width and y-Rmin>=0 and y+Rmin<=height:
             pixisR1,intenR1,pixInValR1,uPi,uIn  = pixiExt(dst,x,y,r)
             pixisR2,intenR2,pixInValR2,uPi,uIn  = pixiExt(dst,x,y,r*1.25)
             regionRatio = paraCal(pixisR1,pixisR2,intenR1,intenR2,pixInValR1,pixInValR2,uPi,uIn)
             #print(r)
-            height0,width0 = dst.shape
+            """ height0,width0 = dst.shape
             y3, x3 = np.ogrid[:height0, :width0]
             
             dist_from_center = np.sqrt((x - x3)**2 + (y-y3)**2)
@@ -226,7 +231,7 @@ if __name__ == "__main__":
             coppyimg[mask2] = 255
             
             cv.imshow("elCircle", coppyimg)
-            cv.waitKey(1)
+            cv.waitKey(1) """
             
             if regionRatio != None and regionRatio > 0.10:
                 houghTra(dst,x,y,r)
@@ -240,5 +245,13 @@ if __name__ == "__main__":
         sys.stdout.write("\r" + str(int(float(y+1)/float(height)*100))+"% picture scaned")
         sys.stdout.flush()
     finale0 = circles(highChanObj,Rmax)
-    drawCicle(dst,finale0)
+    
+    for i in range(len(finale0)):
+        pixisR1,intenR1,pixInValR1,uPi,uIn  = pixiExt(dst,finale0[i][0],finale0[i][1],finale0[i][2])
+        pixisR2,intenR2,pixInValR2,uPi,uIn  = pixiExt(dst,finale0[i][0],finale0[i][1],finale0[i][2]*1.25)
+        regionRatio = paraCal(pixisR1,pixisR2,intenR1,intenR2,pixInValR1,pixInValR2,uPi,uIn)
+        
+        if regionRatio > 0.10:
+            itDoBeDone.append([finale0[i][0],finale0[i][1],finale0[i][2]])
+    drawCicle(dst,itDoBeDone)
     cv.waitKey(0)
