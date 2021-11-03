@@ -201,7 +201,11 @@ def circles(array,Rmax):
 if __name__ == "__main__":
     
     #img1
+<<<<<<< HEAD
     filename = "pipes4.jpg"
+=======
+    filename = "data\cropped_pictures\coconut_1_cropped.jpg"
+>>>>>>> e3e88fbc2ec4a4945b314d90b2b4c135a96738b8
     img1 = cv.imread(filename)
     imgCopy3 = img1.copy()
     gray = cv.cvtColor(imgCopy3,cv.COLOR_BGR2GRAY)
