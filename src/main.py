@@ -15,7 +15,7 @@ def drawCicle(img,finale):
         r = finale[i][2]
         img1 = cv.circle(img,(x,y),r,255,5)
         
-    status = cv.imwrite('/home/rz/Documents/uniwork/Vision/MiniPro/Res/img.png',img1)
+    status = cv.imwrite('data\testing_results\coconut_1_cropped.jpg',img1)
     print(status)
     return cv.imshow("Circles found",img1)
 
@@ -200,13 +200,41 @@ def circles(array,Rmax):
 
 if __name__ == "__main__":
     
-    #img1
-    filename = "pipes4.jpg"
+        # Enhancing Process
+    # PREPROCESSING:
+    #img1 
+    filename = "data\cropped_pictures\coconut_1_cropped.jpg"
     img1 = cv.imread(filename)
-    imgCopy3 = img1.copy()
-    gray = cv.cvtColor(imgCopy3,cv.COLOR_BGR2GRAY)
-    dst = cv.Canny(imgCopy3,80,300)
-    
+    imgcopy = img1.copy()
+
+    # Portable Gray Map
+    img_grey = cv.cvtColor(imgcopy, cv.COLOR_BGR2GRAY)
+
+    # Enhancing Image:
+    img_hist = cv.equalizeHist(img_grey) # Histogram Equalization 
+
+    # Canny edge detection
+    img_edge = cv.Canny(img_hist,80,300) #Default parameters:(100,200)
+
+    # Closing and Opening Morphology
+    img_dil = cv.dilate(
+        img_edge,
+        cv.getStructuringElement(cv.MORPH_RECT, (3, 3)),
+        iterations=1
+    )
+    img_ero = cv.erode(
+        img_dil,
+        cv.getStructuringElement(cv.MORPH_RECT, (3, 3)),
+        iterations=1
+    )
+    img_dil2 = cv.dilate(
+        img_ero,
+        cv.getStructuringElement(cv.MORPH_RECT, (2, 2)),
+        iterations=1
+    )
+    dst = img_dil2
+
+
     height,width = dst.shape
     Rmin = 17
     Rmax = 37
@@ -242,7 +270,7 @@ if __name__ == "__main__":
                 cv.imshow("optimal circle", imgnewn)
                 cv.waitKey(1)
             
-        sys.stdout.write("\r" + str(int(float(y+1)/float(height)*100))+"% picture scaned")
+        sys.stdout.write("\r" + str(int(float(y+1)/float(height)*100))+"% picture scanned")
         sys.stdout.flush()
     finale0 = circles(highChanObj,Rmax)
     
