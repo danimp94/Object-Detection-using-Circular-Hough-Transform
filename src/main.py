@@ -3,7 +3,7 @@ import cv2 as cv
 import numpy as np
 import sys
 import numpy as np
-import  itertools
+import itertools
 
 def drawCicle(img,finale):
     x = 0
@@ -14,8 +14,9 @@ def drawCicle(img,finale):
         y = finale[i][1]
         r = finale[i][2]
         img1 = cv.circle(img,(x,y),r,255,5)
-        
-    status = cv.imwrite('data\testing_results\coconut_1_cropped.jpg',img1)
+    
+    filename_r = "coconut_2_results.png"
+    status = cv.imwrite(filename_r,img1)
     print(status)
     return cv.imshow("Circles found",img1)
 
@@ -231,13 +232,13 @@ if __name__ == "__main__":
 
 
     height,width = dst.shape
-    Rmin = 17
-    Rmax = 37
+    Rmin = 13
+    Rmax = 45
     highChanObj = []
     finale0 = []
     itDoBeDone = []
     
-    for y, x, r in itertools.product(range(0,height,10), range(0,width,10),range(Rmin,Rmax,5)):
+    for y, x, r in itertools.product(range(0,height,15), range(0,width,15),range(Rmin,Rmax,5)):
         if x-Rmin>=0 and x+Rmin<=width and y-Rmin>=0 and y+Rmin<=height:
             pixisR1,intenR1,pixInValR1,uPi,uIn  = pixiExt(dst,x,y,r)
             pixisR2,intenR2,pixInValR2,uPi,uIn  = pixiExt(dst,x,y,r*1.25)
