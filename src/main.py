@@ -204,7 +204,7 @@ if __name__ == "__main__":
         # Enhancing Process
     # PREPROCESSING:
     #img1 
-    filename = "data\cropped_pictures\coconut_2_cropped.jpg"
+    filename = "data\cropped_pictures\coconut_3_cropped.jpg"
     img1 = cv.imread(filename)
     imgcopy = img1.copy()
 
