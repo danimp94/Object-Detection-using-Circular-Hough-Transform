@@ -3,21 +3,21 @@ import cv2 as cv
 import numpy as np
 import sys
 import numpy as np
-import itertools
+import  itertools
 
 def drawCicle(img,finale):
     x = 0
     y = 0
     x = 0
+    img1 = img.copy()
     for i in range(len(finale)):
         x = finale[i][0]
         y = finale[i][1]
         r = finale[i][2]
         img1 = cv.circle(img,(x,y),r,255,5)
-    
-    filename_r = "coconut_5_results.png"
-    status = cv.imwrite(filename_r,img1)
-    print(status)
+        
+    #status = cv.imwrite('/home/rz/Documents/uniwork/Vision/MiniPro/Res/img.png',img1)
+    #print(status)
     return cv.imshow("Circles found",img1)
 
 def houghTra(img,sepX,sepY,sepR):
@@ -30,9 +30,9 @@ def houghTra(img,sepX,sepY,sepR):
         y0 = int(sepY+(sepR*np.sin(np.radians(t))))
         # Checking if the center is within the range of image
         
-        #imgnewnp = cv.circle(imgnewp,(x0,y0),sepR,255,5)
-        #cv.imshow("hough circles", imgnewnp)
-        #cv.waitKey(1)
+        """ imgnewnp = cv.circle(imgnewp,(x0,y0),sepR,255,5)
+        cv.imshow("hough circles", imgnewnp)
+        cv.waitKey(1) """
         if x0>0 and x0<width and y0>0 and y0<height:
             # Voting process...
             if (x0,y0,sepR) in accumulator:
@@ -102,6 +102,9 @@ def circles(array,Rmax):
     finCic = []
     jCicle = []
     solodolo = []
+    imgnew = dst.copy()
+    iii = 0
+
     #print("OG list",sortArr)
     
     """ while circleOnTop:
@@ -139,6 +142,12 @@ def circles(array,Rmax):
             break """
             
     #print("\r on top circles gone", sortArr)
+    """ while iii < len(sortArr): #for worksheet
+        imgnewn = cv.circle(imgnew,(sortArr[iii][0][0][0],sortArr[iii][0][0][1]),sortArr[iii][0][0][2],255,5)
+        cv.imshow("all circles", imgnewn)
+        cv.waitKey(1)
+        iii +=1 """
+        
     while circleInRang:
         #print("ii,jj,len()",ii,jj,len(sortArr))
         #print("ii,jj",ii,jj,len(sortArr))
@@ -201,10 +210,10 @@ def circles(array,Rmax):
 
 if __name__ == "__main__":
     
-        # Enhancing Process
+    ## Enhancing Process
     # PREPROCESSING:
     #img1 
-    filename = "data\cropped_pictures\coconut_5_cropped.jpg"
+    filename = "test3.jpg"
     img1 = cv.imread(filename)
     imgcopy = img1.copy()
 
@@ -215,36 +224,36 @@ if __name__ == "__main__":
     img_hist = cv.equalizeHist(img_grey) # Histogram Equalization 
 
     # Canny edge detection
-    img_edge = cv.Canny(img_hist,85,800) #Default parameters:(100,200)
+    img_edge = cv.Canny(img_hist,400,50) #Default parameters:(100,200) #test1 and 2 400,50,1-1,1-1
 
     # Closing and Opening Morphology
     img_dil = cv.dilate(
         img_edge,
-        cv.getStructuringElement(cv.MORPH_RECT, (2, 2)),
-        iterations=1
-    )
+        cv.getStructuringElement(cv.MORPH_RECT, (1, 1)),
+        iterations=1)
     img_ero = cv.erode(
         img_dil,
-        cv.getStructuringElement(cv.MORPH_RECT, (2, 2)),
-        iterations=1
-    )
+        cv.getStructuringElement(cv.MORPH_RECT, (1, 1)),
+        iterations=1)
     dst = img_ero
-
-
+    
+    cv.imshow("is it okay?", dst)
+    cv.waitKey(0)
+    
     height,width = dst.shape
-    Rmin = 10
-    Rmax = 35
+    Rmin = 53#11 test2 #17 test1
+    Rmax = 118#47 #38
     highChanObj = []
     finale0 = []
     itDoBeDone = []
     
-    for y, x, r in itertools.product(range(0,height,5), range(0,width,5),range(Rmin,Rmax,5)):
+    for y, x, r in itertools.product(range(0,height,20), range(0,width,20),range(Rmin,Rmax,5)):
         if x-Rmin>=0 and x+Rmin<=width and y-Rmin>=0 and y+Rmin<=height:
             pixisR1,intenR1,pixInValR1,uPi,uIn  = pixiExt(dst,x,y,r)
             pixisR2,intenR2,pixInValR2,uPi,uIn  = pixiExt(dst,x,y,r*1.25)
             regionRatio = paraCal(pixisR1,pixisR2,intenR1,intenR2,pixInValR1,pixInValR2,uPi,uIn)
             #print(r)
-            """ height0,width0 = dst.shape
+            height0,width0 = dst.shape
             y3, x3 = np.ogrid[:height0, :width0]
             
             dist_from_center = np.sqrt((x - x3)**2 + (y-y3)**2)
@@ -255,7 +264,7 @@ if __name__ == "__main__":
             coppyimg[mask2] = 255
             
             cv.imshow("elCircle", coppyimg)
-            cv.waitKey(1) """
+            cv.waitKey(1)
             
             if regionRatio != None and regionRatio > 0.10:
                 houghTra(dst,x,y,r)
@@ -263,19 +272,19 @@ if __name__ == "__main__":
                 #print("\r B/A",regionRatio)
                 imgnew = dst.copy()
                 imgnewn = cv.circle(imgnew,(x,y),r,255,5)
-                cv.imshow("optimal circle", imgnewn)
+                cv.imshow("Circle with separability over the threshold", imgnewn)
                 cv.waitKey(1)
             
-        sys.stdout.write("\r" + str(int(float(y+1)/float(height)*100))+"% picture scanned")
+        sys.stdout.write("\r" + str(int(float(y+1)/float(height)*100))+"% picture scaned")
         sys.stdout.flush()
     finale0 = circles(highChanObj,Rmax)
-    
     for i in range(len(finale0)):
         pixisR1,intenR1,pixInValR1,uPi,uIn  = pixiExt(dst,finale0[i][0],finale0[i][1],finale0[i][2])
         pixisR2,intenR2,pixInValR2,uPi,uIn  = pixiExt(dst,finale0[i][0],finale0[i][1],finale0[i][2]*1.25)
         regionRatio = paraCal(pixisR1,pixisR2,intenR1,intenR2,pixInValR1,pixInValR2,uPi,uIn)
-        
-        if regionRatio > 0.10:
+        print(regionRatio)
+        if regionRatio != None and regionRatio > 0.10:
             itDoBeDone.append([finale0[i][0],finale0[i][1],finale0[i][2]])
     drawCicle(dst,itDoBeDone)
+    drawCicle(imgcopy,itDoBeDone)
     cv.waitKey(0)
