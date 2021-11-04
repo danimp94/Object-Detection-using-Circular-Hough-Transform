@@ -15,7 +15,7 @@ def drawCicle(img,finale):
         r = finale[i][2]
         img1 = cv.circle(img,(x,y),r,255,5)
     
-    filename_r = "coconut_2_results.png"
+    filename_r = "coconut_5_results.png"
     status = cv.imwrite(filename_r,img1)
     print(status)
     return cv.imshow("Circles found",img1)
@@ -204,7 +204,7 @@ if __name__ == "__main__":
         # Enhancing Process
     # PREPROCESSING:
     #img1 
-    filename = "data\cropped_pictures\coconut_3_cropped.jpg"
+    filename = "data\cropped_pictures\coconut_5_cropped.jpg"
     img1 = cv.imread(filename)
     imgcopy = img1.copy()
 
@@ -215,7 +215,7 @@ if __name__ == "__main__":
     img_hist = cv.equalizeHist(img_grey) # Histogram Equalization 
 
     # Canny edge detection
-    img_edge = cv.Canny(img_hist,85,650) #Default parameters:(100,200)
+    img_edge = cv.Canny(img_hist,85,800) #Default parameters:(100,200)
 
     # Closing and Opening Morphology
     img_dil = cv.dilate(
@@ -232,13 +232,13 @@ if __name__ == "__main__":
 
 
     height,width = dst.shape
-    Rmin = 13
-    Rmax = 45
+    Rmin = 10
+    Rmax = 35
     highChanObj = []
     finale0 = []
     itDoBeDone = []
     
-    for y, x, r in itertools.product(range(0,height,15), range(0,width,15),range(Rmin,Rmax,5)):
+    for y, x, r in itertools.product(range(0,height,5), range(0,width,5),range(Rmin,Rmax,5)):
         if x-Rmin>=0 and x+Rmin<=width and y-Rmin>=0 and y+Rmin<=height:
             pixisR1,intenR1,pixInValR1,uPi,uIn  = pixiExt(dst,x,y,r)
             pixisR2,intenR2,pixInValR2,uPi,uIn  = pixiExt(dst,x,y,r*1.25)
