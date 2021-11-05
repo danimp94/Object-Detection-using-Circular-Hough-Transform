@@ -30,9 +30,10 @@ def houghTra(img,sepX,sepY,sepR):
         y0 = int(sepY+(sepR*np.sin(np.radians(t))))
         # Checking if the center is within the range of image
         
-        """ imgnewnp = cv.circle(imgnewp,(x0,y0),sepR,255,5)
+        """ imgnewnp = cv.circle(imgnewp,(x0,y0),sepR,255,5) #for visulazation
         cv.imshow("hough circles", imgnewnp)
         cv.waitKey(1) """
+        
         if x0>0 and x0<width and y0>0 and y0<height:
             # Voting process...
             if (x0,y0,sepR) in accumulator:
@@ -193,7 +194,7 @@ def circles(array,Rmax):
                 avgX = int(sortArr[ii][0][0][0])
                 avgY = int(sortArr[ii][0][0][1])
                 maxR = int(sortArr[ii][0][0][2])
-                solodolo.append([avgX,avgY,maxR])
+                finCic.append([avgX,avgY,maxR])
                 #print("add if not within dist",finCic,dist)
             ii += 1
             jj = 0
@@ -213,7 +214,7 @@ if __name__ == "__main__":
     ## Enhancing Process
     # PREPROCESSING:
     #img1 
-    filename = "test3.jpg"
+    filename = "pipes2.jpg"
     img1 = cv.imread(filename)
     imgcopy = img1.copy()
 
@@ -237,23 +238,24 @@ if __name__ == "__main__":
         iterations=1)
     dst = img_ero
     
-    cv.imshow("is it okay?", dst)
-    cv.waitKey(0)
+    #cv.imshow("is it okay?", dst) #check if image is preprocessed good
+    #cv.waitKey(0)
     
     height,width = dst.shape
-    Rmin = 53#11 test2 #17 test1
-    Rmax = 118#47 #38
+    Rmin = 15#11 test2 #17 test1
+    Rmax = 39#47 #38
     highChanObj = []
     finale0 = []
     itDoBeDone = []
     
-    for y, x, r in itertools.product(range(0,height,20), range(0,width,20),range(Rmin,Rmax,5)):
+    for y, x, r in itertools.product(range(0,height,20), range(0,width,20),range(Rmin,Rmax,2)):
         if x-Rmin>=0 and x+Rmin<=width and y-Rmin>=0 and y+Rmin<=height:
             pixisR1,intenR1,pixInValR1,uPi,uIn  = pixiExt(dst,x,y,r)
             pixisR2,intenR2,pixInValR2,uPi,uIn  = pixiExt(dst,x,y,r*1.25)
             regionRatio = paraCal(pixisR1,pixisR2,intenR1,intenR2,pixInValR1,pixInValR2,uPi,uIn)
             #print(r)
-            height0,width0 = dst.shape
+            
+            """ height0,width0 = dst.shape ##for visulazation
             y3, x3 = np.ogrid[:height0, :width0]
             
             dist_from_center = np.sqrt((x - x3)**2 + (y-y3)**2)
@@ -264,16 +266,17 @@ if __name__ == "__main__":
             coppyimg[mask2] = 255
             
             cv.imshow("elCircle", coppyimg)
-            cv.waitKey(1)
+            cv.waitKey(1) """
             
             if regionRatio != None and regionRatio > 0.10:
                 houghTra(dst,x,y,r)
                 highChanObj.append([houghTra(dst,x,y,r)])
                 #print("\r B/A",regionRatio)
-                imgnew = dst.copy()
+                
+                """ imgnew = dst.copy() #for visulazation
                 imgnewn = cv.circle(imgnew,(x,y),r,255,5)
                 cv.imshow("Circle with separability over the threshold", imgnewn)
-                cv.waitKey(1)
+                cv.waitKey(1) """
             
         sys.stdout.write("\r" + str(int(float(y+1)/float(height)*100))+"% picture scaned")
         sys.stdout.flush()
@@ -285,6 +288,7 @@ if __name__ == "__main__":
         print(regionRatio)
         if regionRatio != None and regionRatio > 0.10:
             itDoBeDone.append([finale0[i][0],finale0[i][1],finale0[i][2]])
-    drawCicle(dst,itDoBeDone)
-    drawCicle(imgcopy,itDoBeDone)
+            
+    drawCicle(dst,itDoBeDone) #draw on processed
+    #drawCicle(imgcopy,itDoBeDone) #draw on original image
     cv.waitKey(0)
