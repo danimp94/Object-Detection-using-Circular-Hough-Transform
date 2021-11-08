@@ -223,7 +223,7 @@ if __name__ == "__main__":
 
     # Enhancing Image:
     img_hist = cv.equalizeHist(img_grey) # Histogram Equalization 
-
+ 
     # Canny edge detection
     img_edge = cv.Canny(img_hist,400,50) #Default parameters:(100,200) #test1 and 2 400,50,1-1,1-1
 
